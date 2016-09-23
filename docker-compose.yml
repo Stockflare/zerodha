@@ -1,0 +1,11 @@
+memcached:
+  image: memcached
+  ports:
+    - "11211"
+zerodha:
+  build: .
+  command: /bin/bash
+  volumes:
+    - .:/stockflare
+  links:
+    - memcached
