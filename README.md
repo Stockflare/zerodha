@@ -74,15 +74,15 @@ Note that the test user does not support type `:gtc`
 
 ### Zerodha::User::Link
 
-Get a Users oAuth token
+Called with the request token provided by the Zerodha login redirect flow.  The username needs to be provided but can be anything, `api-trade` will use the returned `user_id` to create the link record as this is the only way for us to know what the Zerodha user id is.
 
 Example Call:
 
 ```
 Zerodha::User::Link.new(
-  username: username,
-  password: password,
-  broker: broker
+  username: "na",
+  password: <request_token>,
+  broker: "zerodha"
 ).call.response
 ```
 
@@ -90,65 +90,35 @@ Successful response:
 
 ```
 {:raw=>
-  {"appTypeID"=>28,
-   "commissionRate"=>2.99,
-   "loginState"=>1,
-   "referralCode"=>"LTJVND",
-   "sessionKey"=>
-    "628f9e2b-6acb-4d6f-9fff-63c93d23d9d0.2016-04-28T09:03:21.908Z",
-   "userID"=>"628f9e2b-6acb-4d6f-9fff-63c93d23d9d0",
-   "wlpID"=>"DW",
-   "accounts"=>
-    [{"accountID"=>"628f9e2b-6acb-4d6f-9fff-63c93d23d9d0.1461255011955",
-      "accountNo"=>"DPNL000006",
-      "userID"=>"628f9e2b-6acb-4d6f-9fff-63c93d23d9d0",
-      "accountType"=>1,
-      "cash"=>10000,
-      "currencyID"=>"USD",
-      "defaultGoalID"=>"19e2709a-94f1-4bbd-9265-e5981d2b57f2",
-      "freeTradeBalance"=>0,
-      "goodFaithViolations"=>0,
-      "ibID"=>"152b3a46-1bc4-4d1e-93a5-ca6f79110d14",
-      "interestFree"=>false,
-      "margin"=>1,
-      "nickname"=>"Shane's Practice Account",
-      "openedWhen"=>"2016-04-21T16:10:11Z",
-      "goals"=>[],
-      "orders"=>[],
-      "patternDayTrades"=>0,
-      "positions"=>[],
-      "status"=>2,
-      "tradingType"=>"C",
-      "createdWhen"=>"2016-04-21T16:10:11.955Z",
-      "bodMoneyMarket"=>10000,
-      "bodEquityValue"=>0,
-      "bodCashAvailForWith"=>10000,
-      "bodCashAvailForTrading"=>10000,
-      "bodUpdatedWhen"=>"2016-04-28T07:18:06.602Z",
-      "rtCashAvailForTrading"=>10000.0,
-      "rtCashAvailForWith"=>10000.0,
-      "commissionSchedule"=>
-       {"baseRate"=>2.99,
-        "baseShares"=>239,
-        "excessRate"=>0.0125,
-        "fractionalRate"=>0.99},
-      "accountMgmtType"=>0,
-      "bodSmaBal"=>0,
-      "bodExReq"=>0,
-      "bodBpx"=>0,
-      "bodTcashBal"=>0,
-      "bodEquity"=>0,
-      "bodHoReq"=>0,
-      "bodMoneyMkt"=>0,
-      "longOnly"=>true}],
-   "instruments"=>[],
-   "guest"=>false},
+  {"status"=>"success",
+   "data"=>
+    {"product"=>["BO", "CO", "CNC", "MIS", "NRML"],
+     "user_id"=>"DH0490",
+     "order_type"=>["LIMIT", "MARKET", "SL", "SL-M"],
+     "exchange"=>
+      ["BSE",
+       "MCXSX",
+       "MCXSXCM",
+       "MCXSXFO",
+       "BFO",
+       "CDS",
+       "MCX",
+       "NSE",
+       "NFO"],
+     "access_token"=>"nuq1ubbufdlfmtpj7is9boa8svkdl1ul",
+     "password_reset"=>false,
+     "user_type"=>"investor",
+     "broker"=>"ZERODHA",
+     "public_token"=>"2056035def9a69360827c29cc8c46243",
+     "member_id"=>"ZERODHA",
+     "user_name"=>"HEMASUNDAR RAO",
+     "email"=>"hemasundhar.rao@gmail.com",
+     "login_time"=>"2016-09-23 17:08:57"}},
  :status=>200,
  :payload=>
   {"type"=>"success",
-   "user_id"=>"628f9e2b-6acb-4d6f-9fff-63c93d23d9d0",
-   "user_token"=>
-    "628f9e2b-6acb-4d6f-9fff-63c93d23d9d0.2016-04-28T09:03:21.908Z"},
+   "user_id"=>"DH0490",
+   "user_token"=>"nuq1ubbufdlfmtpj7is9boa8svkdl1ul"},
  :messages=>["success"]}
 ```
 
@@ -157,12 +127,18 @@ Link failure will raise a `Trading::Errors::LoginException` with the following a
 ```
 { type: :error,
   code: 500,
-  description: 'Could Not Login',
-  messages: ['Check your username and password and try again.'] }
+  description: 'Invalid session credentials',
+  messages: ['Invalid session credentials'] }
 ```
 
 
 ### Zerodha::User::Login
+
+With Zerodha, the user is already logged in by the `Link` call, this will in fact simply use to token to make a call to ensure that the token is still valid and is here to maintain compatibility with our Gem interface.
+
+Zerodha users only have one `account` therefore this call will return synthesised account details where the `account_number` will be the `user_id`.
+
+Note that the `token` emitted by this call will simply be a copy of the `user_token` sent to this call.
 
 example call:
 
@@ -177,69 +153,31 @@ Successful response without security question:
 
 ```
 {:raw=>
-  {"appTypeID"=>28,
-   "appVersion"=>"0.1.9",
-   "commissionRate"=>2.99,
-   "heartbeatWhen"=>"2016-04-28T09:36:19.243Z",
-   "ipAddress"=>"86.3.238.56",
-   "loginState"=>1,
-   "languageID"=>"en_US",
-   "loginWhen"=>"2016-04-28T09:36:19.243Z",
-   "osType"=>"Linux",
-   "osVersion"=>"Ubuntu 64",
-   "referralCode"=>"LTJVND",
-   "scrRes"=>"1920x1080",
-   "sessionKey"=>
-    "628f9e2b-6acb-4d6f-9fff-63c93d23d9d0.2016-04-28T09:36:19.243Z",
-   "userID"=>"628f9e2b-6acb-4d6f-9fff-63c93d23d9d0",
-   "wlpID"=>"DW",
-   "accounts"=>
-    [{"accountID"=>"628f9e2b-6acb-4d6f-9fff-63c93d23d9d0.1461255011955",
-      "accountNo"=>"DPNL000006",
-      "userID"=>"628f9e2b-6acb-4d6f-9fff-63c93d23d9d0",
-      "accountType"=>1,
-      "cash"=>10000,
-      "currencyID"=>"USD",
-      "defaultGoalID"=>"19e2709a-94f1-4bbd-9265-e5981d2b57f2",
-      "freeTradeBalance"=>0,
-      "goodFaithViolations"=>0,
-      "ibID"=>"152b3a46-1bc4-4d1e-93a5-ca6f79110d14",
-      "interestFree"=>false,
-      "margin"=>1,
-      "nickname"=>"Shane's Practice Account",
-      "openedWhen"=>"2016-04-21T16:10:11Z",
-      "goals"=>[],
-      "orders"=>[],
-      "patternDayTrades"=>0,
-      "positions"=>[],
-      "status"=>2,
-      "tradingType"=>"C",
-      "createdWhen"=>"2016-04-21T16:10:11.955Z",
-      "bodMoneyMarket"=>10000,
-      "bodEquityValue"=>0,
-      "bodCashAvailForWith"=>10000,
-      "bodCashAvailForTrading"=>10000,
-      "bodUpdatedWhen"=>"2016-04-28T07:18:06.602Z",
-      "rtCashAvailForTrading"=>10000.0,
-      "rtCashAvailForWith"=>10000.0,
-      "accountMgmtType"=>0,
-      "bodSmaBal"=>0,
-      "bodExReq"=>0,
-      "bodBpx"=>0,
-      "bodTcashBal"=>0,
-      "bodEquity"=>0,
-      "bodHoReq"=>0,
-      "bodMoneyMkt"=>0,
-      "longOnly"=>true}],
-   "instruments"=>[],
-   "guest"=>false},
+  {"status"=>"success",
+   "data"=>
+    {"available"=>
+      {"adhoc_margin"=>0.0,
+       "collateral"=>0.0,
+       "intraday_payin"=>0.0,
+       "cash"=>-1070.95},
+     "net"=>-1070.95,
+     "enabled"=>true,
+     "utilised"=>
+      {"m2m_unrealised"=>-0.0,
+       "m2m_realised"=>-0.0,
+       "debits"=>0.0,
+       "span"=>0.0,
+       "option_premium"=>0.0,
+       "holding_sales"=>0.0,
+       "exposure"=>0.0,
+       "turnover"=>0.0}}},
  :status=>200,
  :payload=>
   {"type"=>"success",
-   "token"=>"628f9e2b-6acb-4d6f-9fff-63c93d23d9d0.2016-04-28T09:36:19.243Z",
+   "token"=>"u6rrejn8kml03w6a55riftcz8bcuw45z",
    "accounts"=>
-    [{"account_number"=>"DPNL000006",
-      "name"=>"Shane's Practice Account",
+    [{"account_number"=>"DH0490",
+      "name"=>"DH0490",
       "cash"=>nil,
       "power"=>nil,
       "day_return"=>nil,

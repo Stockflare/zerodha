@@ -17,7 +17,7 @@ module Zerodha
 
   class << self
 
-    attr_writer :logger, :api_uri, :referral_code, :language, :cache
+    attr_writer :logger, :api_uri, :api_key, :api_secret, :language, :cache
 
     # Helper to configure .
     #
@@ -130,15 +130,28 @@ module Zerodha
       end
     end
 
-    def referral_code
-      if @referral_code
-        return @referral_code
+    def api_key
+      if @api_key
+        return @api_key
       else
         raise Trading::Errors::ConfigException.new(
           type: :error,
           code: 500,
-          description: 'referral_code missing',
-          messages: ['referral_code configuration variable has not been set']
+          description: 'api_key missing',
+          messages: ['api_key configuration variable has not been set']
+        )
+      end
+    end
+
+    def api_secret
+      if @api_secret
+        return @api_secret
+      else
+        raise Trading::Errors::ConfigException.new(
+          type: :error,
+          code: 500,
+          description: 'api_secret missing',
+          messages: ['api_secret configuration variable has not been set']
         )
       end
     end

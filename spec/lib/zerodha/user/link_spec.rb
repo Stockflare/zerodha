@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Zerodha::User::Link do
-  let(:username) { 'stockflare.ff' }
-  let(:password) { 'passw0rd' }
+  let(:username) { 'na' }
+  let(:password) { 'xgwx3qzlm0cmtz09y1n5eh2xh0qzal6p' }
   let(:broker) { :zerodha }
 
   subject do
@@ -16,6 +16,7 @@ describe Zerodha::User::Link do
   describe 'good credentials' do
     it 'returns token' do
       expect(subject.status).to eql 200
+      pp subject.to_h
       expect(subject.payload.type).to eql 'success'
       expect(subject.payload.user_token).not_to be_empty
       expect(subject.payload.user_id).not_to be_empty
@@ -23,7 +24,7 @@ describe Zerodha::User::Link do
   end
 
   describe 'bad credentials' do
-    let(:username) { 'foooooobaaarrrr' }
+    let(:password) { 'foooooobaaarrrr' }
     it 'throws error' do
       expect { subject }.to raise_error(Trading::Errors::LoginException)
     end

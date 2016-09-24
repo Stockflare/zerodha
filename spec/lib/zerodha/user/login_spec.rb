@@ -1,22 +1,23 @@
 require 'spec_helper'
 
 describe Zerodha::User::Login do
-  let(:username) { 'stockflare.ff' }
-  let(:password) { 'passw0rd' }
+  let(:username) { 'DH0490' }
+  let(:password) { 'na' }
+  let(:user_token) { ENV['RSPEC_SESSION_TOKEN'] }
   let(:broker) { :zerodha }
-  let!(:link) do
-    Zerodha::User::Link.new(
-      username: username,
-      password: password,
-      broker: broker
-    ).call.response
-  end
-  let(:user_id) { link.payload.user_id }
-  let(:user_token) { link.payload.user_token }
+  # let!(:link) do
+  #   Zerodha::User::Link.new(
+  #     username: username,
+  #     password: password,
+  #     broker: broker
+  #   ).call.response
+  # end
+  # let(:user_id) { link.payload.user_id }
+  # let(:user_token) { link.payload.user_token }
 
   subject do
     Zerodha::User::Login.new(
-      user_id: user_id,
+      user_id: username,
       user_token: user_token
     ).call.response
   end

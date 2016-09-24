@@ -15,9 +15,10 @@ Dir['./spec/support/**/*.rb'].each { |f| require f }
 Dir["#{File.expand_path('../', __FILE__)}/factories/**/*.rb"].each { |f| require f }
 
 Zerodha.configure do |config|
-  config.api_uri = ENV['DRIVE_WEALTH_BASE_URI']
-  config.referral_code = ENV['DRIVE_WEALTH_REFERRAL_CODE']
-  config.language = ENV['DRIVE_WEALTH_LANGUAGE']
+  config.api_uri = ENV['ZERODHA_BASE_URI']
+  config.language = ENV['ZERODHA_LANGUAGE']
+  config.api_key = ENV['ZERODHA_API_KEY']
+  config.api_secret = ENV['ZERODHA_API_SECRET']
   config.cache = Memcached.new(ENV['MEMCACHED_CONNECTION'])
 end
 
