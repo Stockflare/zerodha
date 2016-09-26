@@ -31,10 +31,10 @@ module Zerodha
       {
         '0' => :pending,
         'OPEN' => :open,
-        '2' => :filled,
+        'COMPLETE' => :filled,
         '1' => :filling,
-        '4' => :cancelled,
-        '8' => :rejected,
+        'CANCELLED' => :cancelled,
+        'REJECTED' => :rejected,
         'NOT_FOUND' => :not_found,
         'PENDING_CANCEL' => :pending_cancel,
         'EXPIRED' => :expired
@@ -69,8 +69,8 @@ module Zerodha
 
     def order_status_actions
       {
-        'B' => :buy,
-        'S' => :sell
+        'BUY' => :buy,
+        'SELL' => :sell
       }
     end
 

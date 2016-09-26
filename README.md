@@ -330,6 +330,8 @@ Failed Logout will raise a `Trading::Errors::LoginException` with similar attrib
 
 ### Zerodha::Position::Get
 
+As Zerodha does not have the concept of multiple accounts, the account_number parameter is ignored.
+
 Example Call
 
 ```
@@ -342,34 +344,53 @@ Zerodha::Positions::Get.new(
 Successful response:
 
 ```
-{ raw:   { 'currentPage' => 0,
-           'longMessages' => nil,
-           'positions' =>
-    [{ 'costbasis' => 103.34,
-       'holdingType' => 'LONG',
-       'lastPrice' => 112.34,
-       'quantity' => 1.0,
-       'symbol' => 'AAPL',
-       'symbolClass' => 'EQUITY_OR_ETF',
-       'todayGainLossDollar' => 3.0,
-       'todayGainLossPercentage' => 0.34,
-       'totalGainLossDollar' => 9.0,
-       'totalGainLossPercentage' => 1.2 },
-      ...
-     ],
-           'shortMessage' => 'Position successfully fetched',
-           'status' => 'SUCCESS',
-           'token' => 'd3e72226aad646cea9e2d6177bd50953',
-           'totalPages' => 1 },
-  status: 200,
-  payload:   { positions:     [{ quantity: 1, price: 103.34, ticker: 'AAPL', instrument_class: 'equity_or_etf', change: 9.0, holding: 'long' },
-                               { quantity: -1, price: 103.34, ticker: 'IBM', instrument_class: 'equity_or_etf', change: 9.0, holding: 'short' },
-                               { quantity: 1, price: 103.34, ticker: 'GE', instrument_class: 'equity_or_etf', change: 9.0, holding: 'short' },
-                               { quantity: 1, price: 103.34, ticker: 'MSFT', instrument_class: 'equity_or_etf', change: 9.0, holding: 'long' }],
-               pages: 1,
-               page: 0,
-               token: d3e72226aad646cea9e2d6177bd50953},
-  messages: ['Position successfully fetched'] }
+{:raw=>
+  {"ABHICAP"=>
+    {"costBasis"=>0.0,
+     "unrealizedPL"=>-100.0,
+     "unrealizedDayPL"=>0.0,
+     "mktPrice"=>93.75,
+     "openQty"=>0.0,
+     "priorClose"=>0.0},
+   "AXISBANK"=>
+    {"costBasis"=>475.0,
+     "unrealizedPL"=>-42.5,
+     "unrealizedDayPL"=>-432.55,
+     "mktPrice"=>432.55,
+     "openQty"=>1.0,
+     "priorClose"=>0.0},
+   "NIFTY15DEC9500CE"=>
+    {"costBasis"=>-347.5,
+     "unrealizedPL"=>272.5,
+     "unrealizedDayPL"=>0.0,
+     "mktPrice"=>0.75,
+     "openQty"=>-100.0,
+     "priorClose"=>0.75}},
+ :status=>200,
+ :payload=>
+  {"positions"=>
+    [{"quantity"=>0.0,
+      "cost_basis"=>0.0,
+      "ticker"=>"abhicap",
+      "instrument_class"=>"equity_or_etf",
+      "change"=>-100.0,
+      "holding"=>"long"},
+     {"quantity"=>1.0,
+      "cost_basis"=>475.0,
+      "ticker"=>"axisbank",
+      "instrument_class"=>"equity_or_etf",
+      "change"=>-42.5,
+      "holding"=>"long"},
+     {"quantity"=>-100.0,
+      "cost_basis"=>-347.5,
+      "ticker"=>"nifty15dec9500ce",
+      "instrument_class"=>"equity_or_etf",
+      "change"=>272.5,
+      "holding"=>"short"}],
+   "pages"=>1,
+   "page"=>0,
+   "token"=>"9iz2t6te04zcbtg8xeivir1qtfmeqxip"},
+ :messages=>["success"]}
 ```
 
 Failed Call will raise a `Trading::Errors::PositionException` with similar attributes:
@@ -382,6 +403,8 @@ Failed Call will raise a `Trading::Errors::PositionException` with similar attri
 ```
 
 ### Zerodha::Order::Preview
+
+This action is not supported by Zerodha and will raise an error.
 
 Example call:
 
@@ -398,65 +421,10 @@ Zerodha::Order::Preview.new(
 ).call.response
 ```
 
-Successful response:
-
-```
-{ raw:   { 'ackWarningsList' => [],
-           'longMessages' => nil,
-           'orderDetails' =>
-    { 'orderSymbol' => 'aapl',
-      'orderAction' => 'Buy',
-      'orderQuantity' => 10.0,
-      'orderExpiration' => 'Day',
-      'orderPrice' => 'Market',
-      'orderValueLabel' => 'Estimated Cost',
-      'orderMessage' => 'You are about to place a market order to buy AAPL',
-      'lastPrice' => '19.0',
-      'bidPrice' => '18.0',
-      'askPrice' => '22.0',
-      'timestamp' => 'Fri Feb 12 08:51:25 EST 2016',
-      'estimatedOrderValue' => 25.0,
-      'estimatedTotalValue' => 28.5,
-      'buyingPower' => 1234.0,
-      'longHoldings' => 12.0,
-      'estimatedOrderCommission' => 3.5 },
-           'orderId' => 1,
-           'shortMessage' => nil,
-           'status' => 'REVIEW_ORDER',
-           'token' => '140784ef96214a5186041abebdfe038a',
-           'warningsList' => [] },
-  status: 200,
-  payload:   { 'type' => 'review',
-               'ticker' => 'aapl',
-               'order_action' => :buy,
-               'quantity' => 10,
-               'expiration' => :day,
-               'price_label' => 'Market',
-               'value_label' => 'Estimated Cost',
-               'message' => 'You are about to place a market order to buy AAPL',
-               'last_price' => 19.0,
-               'bid_price' => 18.0,
-               'ask_price' => 22.0,
-               'timestamp' => 1455285085,
-               'buying_power' => 1234.0,
-               'estimated_commission' => 3.5,
-               'estimated_value' => 25.0,
-               'estimated_total' => 28.5,
-               'warnings' => [],
-               'must_acknowledge' => [],
-               'amount' => 500,
-               'token' => '140784ef96214a5186041abebdfe038a' },
-  messages: [] }
-
-```
-
-Any messages in  `payload.warnings` must be displayed to the user.
-
-any messages in `payload.must_acknowledge` must be shown to the user with check boxes that they must acknowledge
 
 ### Zerodha::Order::Place
 
-Place an order previously reviewed by `Zerodha::Order::Preview`
+This action is not supported by Zerodha and will raise an error.
 
 Example Call
 
@@ -466,63 +434,6 @@ Zerodha::Order::Place.new(
 ).call.response
 ```
 
-Example response
-
-```
-{ raw:   { 'broker' => 'your broker',
-           'confirmationMessage' =>
-    'Your order message 4049c988b1422d52217af9 to buy 10 shares of aapl at market price has been successfully transmitted to your broker at 12/02/16 1:19 PM EST.',
-           'longMessages' => ['Transmitted succesfully to your broker'],
-           'orderInfo' =>
-    { 'universalOrderInfo' =>
-      { 'action' => 'buy',
-        'quantity' => '10',
-        'symbol' => 'aapl',
-        'price' => { 'type' => 'market' },
-        'expiration' => 'day' },
-      'action' => 'Buy',
-      'quantity' => 10,
-      'symbol' => 'aapl',
-      'price' =>
-      { 'type' => 'Market',
-        'last' => 19.0,
-        'bid' => 18.0,
-        'ask' => 22.0,
-        'timestamp' => '2016-02-12T18:19:20Z' },
-      'expiration' => 'Good For The Day' },
-           'orderNumber' => '4049c988b1422d52217af9',
-           'shortMessage' => 'Order Successfully Submitted',
-           'status' => 'SUCCESS',
-           'timestamp' => '12/02/16 1:19 PM EST',
-           'token' => 'dc2427db16d244e7967857cc140cf011' },
-  status: 200,
-  payload:   { 'type' => 'success',
-               'ticker' => 'aapl',
-               'order_action' => :buy,
-               'quantity' => 10,
-               'expiration' => :day,
-               'price_label' => 'Market',
-               'message' =>
-    'Your order message 4049c988b1422d52217af9 to buy 10 shares of aapl at market price has been successfully transmitted to your broker at 12/02/16 1:19 PM EST.',
-               'last_price' => 19.0,
-               'bid_price' => 18.0,
-               'ask_price' => 22.0,
-               'price_timestamp' => 1_455_301_160,
-               'timestamp' => 1_329_416_340,
-               'order_number' => '4049c988b1422d52217af9',
-               'token' => 'dc2427db16d244e7967857cc140cf011' },
-  messages: ['Order Successfully Submitted'] }
-```
-
-Failed Call will raise a `Trading::Errors::OrderException` with similar attributes:
-
-```
-{:type=>:error,
- :code=>500,
- :broker_code=>600,
- :description=>"Could Not Complete Your Request",
- :messages=>["Your session has expired. Please try again"]}
-```
 
 ## Zerodha::Order::Status
 
@@ -543,90 +454,84 @@ Omit the `order_number` to get the status of all orders for the account
 Example response
 ```
 {:raw=>
-  {"accountNumber"=>"brkAcct1",
-   "longMessages"=>nil,
-   "orderStatusDetailsList"=>
-    [{"groupOrderId"=>nil,
-      "groupOrderType"=>"null",
-      "groupOrders"=>[],
-      "orderExpiration"=>"DAY",
-      "orderLegs"=>
-       [{"action"=>"BUY",
-         "filledQuantity"=>0,
-         "fills"=>[],
-         "orderedQuantity"=>5000,
-         "priceInfo"=>
-          {"bracketLimitPrice"=>0.0,
-           "conditionFollowPrice"=>nil,
-           "conditionPrice"=>0.0,
-           "conditionSymbol"=>nil,
-           "conditionType"=>nil,
-           "initialStopPrice"=>0.0,
-           "limitPrice"=>0.0,
-           "stopPrice"=>0.0,
-           "trailPrice"=>0.0,
-           "triggerPrice"=>0.0,
-           "type"=>"MARKET"},
-         "symbol"=>"CMG"}],
-      "orderNumber"=>"123",
-      "orderStatus"=>"OPEN",
-      "orderType"=>"EQ"},
-     {"groupOrderId"=>nil,
-      "groupOrderType"=>"null",
-      "groupOrders"=>[],
-      "orderExpiration"=>"GTC",
-      "orderLegs"=>
-       [{"action"=>"SELL_SHORT",
-         "filledQuantity"=>6000,
-         "fills"=>
-          [{"price"=>123.45,
-            "quantity"=>6000,
-            "timestamp"=>"01/01/15 12:34 PM EST"}],
-         "orderedQuantity"=>10000,
-         "priceInfo"=>
-          {"bracketLimitPrice"=>0.0,
-           "conditionFollowPrice"=>nil,
-           "conditionPrice"=>0.0,
-           "conditionSymbol"=>nil,
-           "conditionType"=>nil,
-           "initialStopPrice"=>0.0,
-           "limitPrice"=>67.89,
-           "stopPrice"=>123.45,
-           "trailPrice"=>0.0,
-           "triggerPrice"=>0.0,
-           "type"=>"STOP_LIMIT"},
-         "symbol"=>"MCD"}],
-      "orderNumber"=>"456",
-      "orderStatus"=>"PART_FILLED",
-      "orderType"=>"EQ"}],
-   "shortMessage"=>"Order statuses successfully fetched",
-   "status"=>"SUCCESS",
-   "token"=>"bba1c52b409245afb86919b9c3d7b898"},
+  {"status"=>"success",
+   "data"=>
+    [{"order_id"=>"151220000000000",
+      "parent_order_id"=>"151210000000000",
+      "exchange_order_id"=>nil,
+      "placed_by"=>"AB0012",
+      "variety"=>"regular",
+      "status"=>"COMPLETE",
+      "tradingsymbol"=>"ACC",
+      "exchange"=>"NSE",
+      "instrument_token"=>22,
+      "transaction_type"=>"BUY",
+      "order_type"=>"MARKET",
+      "product"=>"NRML",
+      "validity"=>"DAY",
+      "price"=>0.1,
+      "quantity"=>75,
+      "trigger_price"=>0.0,
+      "average_price"=>0.1,
+      "pending_quantity"=>0,
+      "filled_quantity"=>10,
+      "disclosed_quantity"=>0,
+      "market_protection"=>0,
+      "order_timestamp"=>"2015-12-20 15:01:43",
+      "exchange_timestamp"=>nil,
+      "status_message"=>"RMS:Margin Exceeds, Required:0, Available:0"},
+     {"order_id"=>"151220000000099",
+      "parent_order_id"=>"151210000000000",
+      "exchange_order_id"=>nil,
+      "placed_by"=>"AB0012",
+      "variety"=>"regular",
+      "status"=>"COMPLETE",
+      "tradingsymbol"=>"ACC",
+      "exchange"=>"NSE",
+      "instrument_token"=>22,
+      "transaction_type"=>"BUY",
+      "order_type"=>"MARKET",
+      "product"=>"NRML",
+      "validity"=>"DAY",
+      "price"=>0.99,
+      "quantity"=>75,
+      "trigger_price"=>0.0,
+      "average_price"=>0.99,
+      "pending_quantity"=>0,
+      "filled_quantity"=>10,
+      "disclosed_quantity"=>0,
+      "market_protection"=>0,
+      "order_timestamp"=>"2015-12-20 15:01:43",
+      "exchange_timestamp"=>nil,
+      "status_message"=>"RMS:Margin Exceeds, Required:0, Available:0"}]},
  :status=>200,
  :payload=>
- {"type"=>"success",
-  "orders"=>
-   [{"ticker"=>"cmg",
-     "order_action"=>:buy,
-     "filled_quantity"=>0,
-     "filled_price"=>0.0,
-     "order_number"=>"123",
-     "quantity"=>5000,
-     "expiration"=>:day,
-     "status"=>:open},
-    {"ticker"=>"mcd",
-     "order_action"=>:sell_short,
-     "filled_quantity"=>6000,
-     "filled_price"=>123.45,
-     "order_number"=>"456",
-     "quantity"=>10000,
-     "expiration"=>:gtc,
-     "status"=>:part_filled}],
-  "token"=>"3384aeb24c2143f5b78ee3e1311a40eb"}
+  {"type"=>"success",
+   "orders"=>
+    [{"ticker"=>"acc",
+      "order_action"=>:buy,
+      "filled_quantity"=>10.0,
+      "filled_price"=>0.1,
+      "filled_total"=>1.0,
+      "order_number"=>"151220000000000",
+      "quantity"=>75.0,
+      "expiration"=>:day,
+      "status"=>:filled},
+     {"ticker"=>"acc",
+      "order_action"=>:buy,
+      "filled_quantity"=>10.0,
+      "filled_price"=>0.99,
+      "filled_total"=>9.9,
+      "order_number"=>"151220000000099",
+      "quantity"=>75.0,
+      "expiration"=>:day,
+      "status"=>:filled}],
+   "token"=>"9iz2t6te04zcbtg8xeivir1qtfmeqxip"},
+ :messages=>["success"]}
 ```
 ## Zerodha::Order::Cancel
 
-Cancel an unfulfilled order.  The payload is identical to `Zerodha::Order::Status` in that it return the order status of the cancelled order
+This action is not supported by Zerodha and will raise an error.
 
 Example Call
 
@@ -639,61 +544,10 @@ Zerodha::Order::Cancel.new(
 ```
 
 
-Example response
-```
-{:raw=>
-  {"accountNumber"=>"brkAcct1",
-   "longMessages"=>nil,
-   "orderStatusDetailsList"=>
-    [{"groupOrderId"=>nil,
-      "groupOrderType"=>"null",
-      "groupOrders"=>[],
-      "orderExpiration"=>"GTC",
-      "orderLegs"=>
-       [{"action"=>"BUY",
-         "filledQuantity"=>0,
-         "fills"=>[],
-         "orderedQuantity"=>275000,
-         "priceInfo"=>
-          {"bracketLimitPrice"=>0.0,
-           "conditionFollowPrice"=>nil,
-           "conditionPrice"=>0.0,
-           "conditionSymbol"=>nil,
-           "conditionType"=>nil,
-           "initialStopPrice"=>0.0,
-           "limitPrice"=>0.0,
-           "stopPrice"=>0.0,
-           "trailPrice"=>0.0,
-           "triggerPrice"=>0.0,
-           "type"=>"MARKET"},
-         "symbol"=>"FTFY"}],
-      "orderNumber"=>"456",
-      "orderStatus"=>"PENDING_CANCEL",
-      "orderType"=>"EQ"}],
-   "shortMessage"=>"Order statuses successfully fetched",
-   "status"=>"SUCCESS",
-   "token"=>"d9c45bb6223f425c865ed7c88042ad1f"},
- :status=>200,
- :payload=>
-  {"type"=>"success",
-   "orders"=>
-    [{"ticker"=>"ftfy",
-      "order_action"=>:buy,
-      "filled_quantity"=>0,
-      "filled_price"=>0.0,
-      "order_number"=>"456",
-      "quantity"=>275000,
-      "expiration"=>:gtc,
-      "status"=>:pending_cancel}],
-   "token"=>"d9c45bb6223f425c865ed7c88042ad1f"},
- :messages=>["Order statuses successfully fetched"]}
-
-
-
-```
-
 
 ### Zerodha::Instrument::Details
+
+This action is not supported by Zerodha and will raise an error.
 
 Example Call
 
@@ -702,67 +556,4 @@ Zerodha::Order::Cancel.new(
   token: preview_token,
   ticker: "aapl"
 ).call.response
-```
-
-Example response
-
-```
-{:raw=>
-  {{"instrumentID"=>"a67422af-8504-43df-9e63-7361eb0bd99e",
-    "name"=>"Apple, Inc.",
-    "category"=>"Stock",
-    "currencyID"=>"USD",
-    "description"=>"Apple Inc. designs, manufactures, and markets mobile communication and media devices, personal computers, and portable digital music players worldwide.",
-    "exchangeID"=>"XNAS",
-    "limitStatus"=>0,
-    "instrumentTypeID"=>6,
-    "isLongOnly"=>true,
-    "marginCurrencyID"=>"USD",
-    "orderSizeMax"=>10000,
-    "orderSizeMin"=>0.0001,
-    "orderSizeStep"=>0.0001,
-    "rateAsk"=>97.45,
-    "rateBid"=>97.44,
-    "rateHigh"=>99.12,
-    "rateLow"=>97.1,
-    "rateOpen"=>98.69,
-    "ratePrecision"=>2,
-    "symbol"=>"AAPL",
-    "tags"=>["aapl", "sp500", "usa"],
-    "tradeStatus"=>1,
-    "tradingHours"=>"Mon-Fri: 9:30am - 4:00pm ET",
-    "uom"=>"shares",
-    "urlImage"=>"http://syscdn.drivewealth.net/images/symbols/aapl.png",
-    "urlInvestor"=>"http://investor.apple.com/",
-    "chaikinPgr"=>
-     "{  \"Corrected PGR Value\":\"2\",  \"Financial Metrics\":\"2\",  \"Earnings Performance\":\"4\",  \"Price/Volume Activity\":\"3\",  \"Expert Opinions\":\"1\",  \"pgrSummaryText\":\"The Chaikin Power Gauge Rating for AAPL is Bearish due to very negative expert activity and poor financial metrics. The stock also has strong earnings performance.\"}",
-    "sector"=>"Technology",
-    "priorClose"=>97.34,
-    "close"=>0,
-    "lastTrade"=>97.34,
-    "nameLower"=>"apple, inc.",
-    "underlyingID"=>"0",
-    "marketState"=>2,
-    "minTic"=>0,
-    "pipMultiplier"=>1,
-    "tickerSymbol"=>"AAPL",
-    "rebateSpread"=>0,
-    "longOnly"=>true}=>nil},
- :status=>200,
- :payload=>
-  {"type"=>"success",
-   "broker_id"=>"a67422af-8504-43df-9e63-7361eb0bd99e",
-   "ticker"=>"aapl",
-   "last_price"=>97.34,
-   "bid_price"=>97.44,
-   "ask_price"=>97.45,
-   "order_size_max"=>10000.0,
-   "order_size_min"=>0.0001,
-   "order_size_step"=>0.0001,
-   "allow_fractional_shares"=>true,
-   "timestamp"=>1465915138,
-   "warnings"=>[],
-   "must_acknowledge"=>[],
-   "token"=>"628f9e2b-6acb-4d6f-9fff-63c93d23d9d0.2016-06-14T14:38:53.603Z"},
- :messages=>["success"]}
 ```

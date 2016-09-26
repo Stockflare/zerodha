@@ -10,15 +10,17 @@ module Zerodha
       def call
         blotter = Zerodha::User::Account.new(token: token, account_number: account_number).call.response
         positions = []
-        blotter.raw['equity']['equityPositions'].each do |p|
+        blotter.raw.keys.map do |k|
+          p = blotter.raw[k]
           position = Zerodha::Base::Position.new(
-            quantity: p['availableForTradingQty'].to_f,
+            quantity: p['openQty'].to_f,
             cost_basis: p['costBasis'].to_f,
-            ticker: p['symbol'].downcase,
+            ticker: k.downcase,
             instrument_class: 'EQUITY_OR_ETF'.downcase,
             change: p['unrealizedPL'].to_f,
-            holding: 'LONG'.downcase
+            holding: p['openQty'].to_f >= 0 ? 'LONG'.downcase : 'SHORT'.downcase
           ).to_h
+
           positions.push position
         end
 
