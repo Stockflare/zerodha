@@ -5,14 +5,14 @@ describe Zerodha::User::Verify do
   let(:password) { 'passw0rd' }
   let(:broker) { :zerodha }
   let(:answer) { 'tradingticket' }
-  let!(:user) do
-    Zerodha::User::LinkAndLogin.new(
-      username: username,
-      password: password,
-      broker: broker
-    ).call.response.payload
-  end
-  let(:token) { user[:token] }
+  # let!(:user) do
+  #   Zerodha::User::LinkAndLogin.new(
+  #     username: username,
+  #     password: password,
+  #     broker: broker
+  #   ).call.response.payload
+  # end
+  let(:token) { ENV['RSPEC_SESSION_TOKEN'] }
 
   subject do
     Zerodha::User::Verify.new(
@@ -24,6 +24,7 @@ describe Zerodha::User::Verify do
   describe 'good answer' do
     it 'returns token' do
       expect(subject.status).to eql 200
+      pp subject.to_h      
       expect(subject.payload.type).to eql 'success'
       expect(subject.payload.token).not_to be_empty
     end

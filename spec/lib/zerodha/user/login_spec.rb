@@ -25,6 +25,7 @@ describe Zerodha::User::Login do
   describe 'good credentials' do
     it 'returns token' do
       expect(subject.status).to eql 200
+      pp subject.to_h
       expect(subject.payload.type).to eql 'success'
       expect(subject.payload.token).not_to be_empty
     end

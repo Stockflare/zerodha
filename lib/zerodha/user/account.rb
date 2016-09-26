@@ -1,10 +1,8 @@
 module Zerodha
   module User
     #
-    # Unlike Tradeit getting these result is a multi step process
-    # First you need to get the Users account in order to convert
-    # an account_number into an account ID.  Then you need to get
-    # the Account Blotter and sum up all the Equity positions.
+    # This is a multi step process, you need to get the user's account summary
+    # and then get all the holid and positions data
     #
     class Account < Zerodha::Base
       values do
@@ -12,67 +10,103 @@ module Zerodha
         attribute :account_number, String
       end
 
-      def call
-        details = Zerodha::User.get_account(token, account_number)
-        account = details[:account]
-        user_id = details[:user_id]
+      def self.positions_result(positions_result)
+        positions_result
+      end
 
-        uri = URI.join(Zerodha.api_uri, "v1/users/#{user_id}/accountSummary/#{account['accountID']}")
-        req = Net::HTTP::Get.new(uri, initheader = {
-                                   'Content-Type' => 'application/json',
-                                   'x-mysolomeo-session-key' => token
+      def self.holdings_result(holdings_result)
+        holdings_result
+      end
+
+      def call
+        details = Zerodha::User::Login.new(user_id: 'na', user_token: token).call.response
+
+        holdings_uri = URI.join(Zerodha.api_uri, "portfolio/holdings?api_key=#{Zerodha.api_key}&access_token=#{token}")
+        holdings_req = Net::HTTP::Get.new(holdings_uri, initheader = {
+                                   'Content-Type' => 'application/json'
                                  })
 
-        resp = Zerodha.call_api(uri, req)
+        holdings_resp = Zerodha.call_api(holdings_uri, holdings_req)
+        holdings_result = Zerodha::User::Account.holdings_result(JSON.parse(holdings_resp.body))
 
-        result = JSON.parse(resp.body)
-        if resp.code == '200'
-          payload = {
-            type: 'success',
-            cash: result['cash']['cashBalance'].to_f,
-            power: result['cash']['cashAvailableForTrade'].to_f,
-            day_return: 0.0,
-            day_return_percent: 0.0,
-            total_return: 0.0,
-            total_return_percent: 0.0,
-            value: result['equity']['equityValue'].to_f,
-            token: token
-          }
+        if holdings_resp.code == '200'
 
-          # Deal with positions to create summary values
-          total_cost_basis = 0.0
-          total_return = 0.0
-          total_day_return = 0.0
-          total_market_value = 0.0
-          total_close_market_value = 0.0
-          result['equity']['equityPositions'].each do |position|
-            total_cost_basis += position['costBasis'].to_f
-            total_return += position['unrealizedPL'].to_f
-            total_day_return += position['unrealizedDayPL'].to_f
-            total_market_value += (position['mktPrice'].to_f * position['openQty'].to_f)
-            total_close_market_value += (position['priorClose'].to_f * position['openQty'].to_f)
-          end
+          positions_uri = URI.join(Zerodha.api_uri, "portfolio/positions?api_key=#{Zerodha.api_key}&access_token=#{token}")
+          positions_req = Net::HTTP::Get.new(positions_uri, initheader = {
+                                     'Content-Type' => 'application/json'
+                                   })
 
-          payload[:day_return] = total_day_return.round(4)
-          payload[:total_return] = total_return.round(4)
-          if total_cost_basis > 0
-            payload[:total_return_percent] = (total_return / total_cost_basis).round(4)
+          positions_resp = Zerodha.call_api(positions_uri, positions_req)
+          positions_result = Zerodha::User::Account.positions_result(JSON.parse(positions_resp.body))
+
+          if positions_resp.code == '200'
+            # Now need to combine all the positions and holdings
+            account_positions = {}
+            holdings_result['data'].each do |holding|
+              parse_instrument(holding, account_positions)
+            end
+            positions_result['data']['net'].each do |position|
+              parse_instrument(position, account_positions)
+            end
+
+            payload = {
+              type: 'success',
+              cash: details['raw']['data']['available']['cash'].to_f,
+              power: details['raw']['data']['net'].to_f,
+              day_return: 0.0,
+              day_return_percent: 0.0,
+              total_return: 0.0,
+              total_return_percent: 0.0,
+              value: 0.0,
+              token: token
+            }
+
+            # Deal with positions to create summary values
+            total_cost_basis = 0.0
+            total_return = 0.0
+            total_day_return = 0.0
+            total_market_value = 0.0
+            total_close_market_value = 0.0
+            account_positions.keys.each do |k|
+              position = account_positions[k]
+              total_cost_basis += position['costBasis'].to_f
+              total_return += position['unrealizedPL'].to_f
+              total_day_return += position['unrealizedDayPL'].to_f
+              total_market_value += (position['mktPrice'].to_f * position['openQty'].to_f)
+              total_close_market_value += (position['priorClose'].to_f * position['openQty'].to_f)
+            end
+
+            payload[:day_return] = total_day_return.round(4)
+            payload[:total_return] = total_return.round(4)
+            if total_cost_basis > 0
+              payload[:total_return_percent] = (total_return / total_cost_basis).round(4)
+            end
+            if (total_market_value - total_day_return) != 0
+              payload[:day_return_percent] = (total_day_return / (total_market_value - total_day_return)).round(4)
+            end
+            payload[:value] = total_market_value
+
+            self.response = Zerodha::Base::Response.new(
+              raw: account_positions,
+              payload: payload,
+              messages: Array('success'),
+              status: 200
+            )
+
+          else
+            raise Trading::Errors::LoginException.new(
+              type: :error,
+              code: positions_resp.code,
+              description: positions_result['message'],
+              messages: positions_result['message']
+            )
           end
-          if (total_market_value - total_day_return) != 0
-            payload[:day_return_percent] = (total_day_return / (total_market_value - total_day_return)).round(4)
-          end
-          self.response = Zerodha::Base::Response.new(
-            raw: result,
-            payload: payload,
-            messages: Array('success'),
-            status: 200
-          )
         else
           raise Trading::Errors::LoginException.new(
             type: :error,
-            code: resp.code,
-            description: result['message'],
-            messages: result['message']
+            code: holdings_resp.code,
+            description: holdings_result['message'],
+            messages: holdings_result['message']
           )
         end
 
@@ -84,6 +118,27 @@ module Zerodha
         Time.parse(time_string).utc.to_i
       rescue
         Time.now.utc.to_i
+      end
+
+      def parse_instrument(instrument, account_positions)
+        if !account_positions.has_key?(instrument['tradingsymbol'])
+          account_positions[instrument['tradingsymbol']] = {
+            'costBasis' => 0.0,
+            'unrealizedPL' => 0.0,
+            'unrealizedDayPL' => 0.0,
+            'mktPrice' => 0.0,
+            'openQty' => 0.0,
+            'priorClose' => 0.0
+          }
+        end
+        position = account_positions[instrument['tradingsymbol']]
+        position['costBasis'] = position['costBasis'] + (instrument['average_price'].to_f * instrument['quantity'].to_f)
+        position['unrealizedPL'] = position['unrealizedPL'] + instrument['pnl'].to_f
+        position['mktPrice'] = instrument['last_price'].to_f
+        position['openQty'] = instrument['quantity'].to_f
+        position['priorClose'] = instrument['close_price'].to_f
+        position['unrealizedDayPL'] = (position['openQty'] * position['priorClose']) - (position['openQty'] * position['mktPrice'])
+        account_positions
       end
     end
   end

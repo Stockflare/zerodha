@@ -6,11 +6,10 @@ module Zerodha
       end
 
       def call
-        uri = URI.join(Zerodha.api_uri, "v1/userSessions/#{token}")
+        uri = URI.join(Zerodha.api_uri, "session/token?api_key=#{Zerodha.api_key}&access_token=#{token}")
 
         req = Net::HTTP::Delete.new(uri, initheader = {
-                                      'Content-Type' => 'application/json',
-                                      'x-mysolomeo-session-key' => token
+                                      'Content-Type' => 'application/json'
                                     })
 
         resp = Zerodha.call_api(uri, req)

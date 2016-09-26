@@ -214,8 +214,6 @@ Zerodha::User::Verify.new(
 
 All success responses are identical to `Zerodha::User::Login`
 
-If the user provides a bad answer then the response will be a success asking another question.
-
 A failure will raise a `Trading::Errors::LoginException` with the similar attributes:
 ```
 { type: :error,
@@ -226,7 +224,9 @@ A failure will raise a `Trading::Errors::LoginException` with the similar attrib
 
 ### Zerodha::User::Account
 
-Get the current financial state of an account
+Get the current financial state of an account.
+
+Zerodha does not have accounts for users, this Gem synthesises an account whose name is the same as the user id, therefore the `account_number` parameter is ignored.
 
 Example Call
 
@@ -241,29 +241,39 @@ Example response
 
 ```
 {:raw=>
-  {"availableCash"=>1204.06,
-   "buyingPower"=>2408.12,
-   "dayAbsoluteReturn"=>78.42,
-   "dayPercentReturn"=>3.25,
-   "longMessages"=>nil,
-   "shortMessage"=>"Account Overview successfully fetched",
-   "status"=>"SUCCESS",
-   "token"=>"3e40016b846f4d20a4b7102a1949f893",
-   "totalAbsoluteReturn"=>14486.67,
-   "totalPercentReturn"=>22.84,
-   "totalValue"=>76489.23},
+  {"ABHICAP"=>
+    {"costBasis"=>0.0,
+     "unrealizedPL"=>-100.0,
+     "unrealizedDayPL"=>0.0,
+     "mktPrice"=>93.75,
+     "openQty"=>0.0,
+     "priorClose"=>0.0},
+   "AXISBANK"=>
+    {"costBasis"=>475.0,
+     "unrealizedPL"=>-42.5,
+     "unrealizedDayPL"=>-432.55,
+     "mktPrice"=>432.55,
+     "openQty"=>1.0,
+     "priorClose"=>0.0},
+   "NIFTY15DEC9500CE"=>
+    {"costBasis"=>-347.5,
+     "unrealizedPL"=>272.5,
+     "unrealizedDayPL"=>0.0,
+     "mktPrice"=>0.75,
+     "openQty"=>-100.0,
+     "priorClose"=>0.75}},
  :status=>200,
  :payload=>
   {"type"=>"success",
-   "cash"=>1204.06,
-   "power"=>2408.12,
-   "day_return"=>78.42,
-   "day_return_percent"=>3.25,
-   "total_return"=>14486.67,
-   "total_return_percent"=>22.84,
-   "value"=>22.84,
-   "token"=>"3e40016b846f4d20a4b7102a1949f893"},
- :messages=>["Account Overview successfully fetched"]}
+   "cash"=>-1070.95,
+   "power"=>-1070.95,
+   "day_return"=>-432.55,
+   "day_return_percent"=>-0.5475,
+   "total_return"=>130.0,
+   "total_return_percent"=>1.0196,
+   "value"=>357.55,
+   "token"=>"iv8j3e4y59dsr6rlkk5vkfkl86bsszsg"},
+ :messages=>["success"]}
 ```
 
 
@@ -287,20 +297,13 @@ Zerodha::User::Logout.new(
 Successful logout response
 
 ```
-{ raw: { 'longMessages' => nil, 'shortMessage' => nil, 'status' => 'SUCCESS', 'token' => '765b7e4056334a27a9b65033b889878e' },
+{ raw: {},
   status: 200,
-  payload: { type: 'success', token: '765b7e4056334a27a9b65033b889878e', accounts: nil },
+  payload: { type: 'success', token: '765b7e4056334a27a9b65033b889878e', accounts: [] },
   messages: [] }
 ```
 
-Failed Logout will raise a `Trading::Errors::LoginException` with similar attributes:
 
-```
-{ type: :error,
-  code: 500,
-  description: 'Could Not Complete Your Request',
-  messages: ['Your session has expired. Please try again'] }
-```
 
 ### Zerodha::User::Refresh
 

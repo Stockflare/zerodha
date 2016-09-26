@@ -76,35 +76,6 @@ module Zerodha
         end
       end
 
-      #
-      # Get an account from an account_number and token
-      #
-      def get_account(token, account_number)
-        result = get_user_from_token(token)
-        user_id = result.raw['userID']
-
-        # Find the correct account
-        accounts = result.raw['accounts'].select do |account|
-          account['accountNo'] == account_number
-        end
-
-        if accounts.count > 0
-          # Get the details of the account
-          account = accounts[0]
-
-          return {
-            user_id: user_id,
-            account: account
-          }
-        else
-          raise Trading::Errors::LoginException.new(
-            type: :error,
-            code: '403',
-            description: 'Account could not be found',
-            messages: ['Account could not be found']
-          )
-        end
-      end
     end
   end
 end

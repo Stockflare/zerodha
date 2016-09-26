@@ -1,17 +1,10 @@
 require 'spec_helper'
 
 describe Zerodha::User::Logout do
-  let(:username) { 'stockflare.ff' }
-  let(:password) { 'passw0rd' }
+  let(:username) { 'DH0490' }
+  let(:password) { 'na' }
+  let(:token) { ENV['RSPEC_SESSION_TOKEN'] }
   let(:broker) { :zerodha }
-  let!(:user) do
-    Zerodha::User::LinkAndLogin.new(
-      username: username,
-      password: password,
-      broker: broker
-    ).call.response.payload
-  end
-  let(:token) { user[:token] }
 
   subject do
     Zerodha::User::Logout.new(
