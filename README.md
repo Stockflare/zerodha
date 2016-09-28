@@ -547,7 +547,7 @@ Zerodha::Order::Cancel.new(
 
 ### Zerodha::Instrument::Details
 
-This action is not supported by Zerodha and will raise an error.
+Get pricing and fraction share details for this ticker
 
 Example Call
 
@@ -556,4 +556,51 @@ Zerodha::Order::Cancel.new(
   token: preview_token,
   ticker: "aapl"
 ).call.response
+```
+
+Example response
+```
+{:raw=>
+  {"status"=>"success",
+   "data"=>
+    {"last_price"=>1038.6,
+     "volume"=>179858,
+     "sell_quantity"=>0,
+     "open_interest"=>0.0,
+     "last_quantity"=>1,
+     "change"=>-0.17,
+     "ohlc"=>{"high"=>1041.8, "close"=>1040.45, "open"=>1040.0, "low"=>1034.0},
+     "last_time"=>"2016-09-28 15:49:40",
+     "change_percent"=>-1.85,
+     "depth"=>
+      {"sell"=>
+        [{"price"=>0.0, "orders"=>0, "quantity"=>0},
+         {"price"=>0.0, "orders"=>0, "quantity"=>0},
+         {"price"=>0.0, "orders"=>0, "quantity"=>0},
+         {"price"=>0.0, "orders"=>0, "quantity"=>0},
+         {"price"=>0.0, "orders"=>0, "quantity"=>0}],
+       "buy"=>
+        [{"price"=>0.0, "orders"=>0, "quantity"=>0},
+         {"price"=>0.0, "orders"=>0, "quantity"=>0},
+         {"price"=>0.0, "orders"=>0, "quantity"=>0},
+         {"price"=>0.0, "orders"=>0, "quantity"=>0},
+         {"price"=>0.0, "orders"=>0, "quantity"=>0}]},
+     "buy_quantity"=>0}},
+ :status=>200,
+ :payload=>
+  {"type"=>"success",
+   "broker_id"=>"infy",
+   "ticker"=>"infy",
+   "last_price"=>1038.6,
+   "bid_price"=>0.0,
+   "ask_price"=>0.0,
+   "order_size_max"=>99999.0,
+   "order_size_min"=>1.0,
+   "order_size_step"=>1.0,
+   "allow_fractional_shares"=>false,
+   "timestamp"=>1475068914,
+   "warnings"=>[],
+   "must_acknowledge"=>[],
+   "token"=>"jn5vzx0clv0lt0s9y8h1k92s9uloqf9d"},
+ :messages=>["success"]}
 ```
