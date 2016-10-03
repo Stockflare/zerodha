@@ -18,12 +18,12 @@ module Zerodha
             ticker: k.downcase,
             instrument_class: 'EQUITY_OR_ETF'.downcase,
             change: p['unrealizedPL'].to_f,
-            holding: p['openQty'].to_f >= 0 ? 'LONG'.downcase : 'SHORT'.downcase
+            holding: p['openQty'].to_f >= 0 ? 'LONG'.downcase : 'SHORT'.downcase,
+            last_price: p['mktPrice'].to_f
           ).to_h
 
           positions.push position
         end
-
         self.response = Zerodha::Base::Response.new(raw: blotter.raw,
                                                         status: 200,
                                                         payload: {

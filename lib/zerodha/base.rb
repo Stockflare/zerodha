@@ -62,6 +62,7 @@ module Zerodha
         attribute :instrument_class, String
         attribute :change, Float
         attribute :holding, String
+        attribute :last_price, Float
       end
     end
 

@@ -135,7 +135,7 @@ module Zerodha
         position['costBasis'] = position['costBasis'] + (instrument['average_price'].to_f * instrument['quantity'].to_f)
         position['unrealizedPL'] = position['unrealizedPL'] + instrument['pnl'].to_f
         position['mktPrice'] = instrument['last_price'].to_f
-        position['openQty'] = instrument['quantity'].to_f
+        position['openQty'] = position['openQty'] + instrument['quantity'].to_f
         position['priorClose'] = instrument['close_price'].to_f
         position['unrealizedDayPL'] = (position['openQty'] * position['priorClose']) - (position['openQty'] * position['mktPrice'])
         account_positions
