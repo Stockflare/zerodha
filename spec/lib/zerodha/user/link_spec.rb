@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Zerodha::User::Link do
   let(:username) { 'na' }
-  let(:password) { 'fi21zo8lsxheqj9pdvlix4hf4lenvusn' }
+  let(:password) { '5ieqh2pwd90i4hsb4z0l3phr90sof528' }
   let(:broker) { :zerodha }
 
   subject do

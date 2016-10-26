@@ -121,8 +121,32 @@ module Zerodha
       end
 
       def parse_instrument(instrument, account_positions)
-        if !account_positions.has_key?(instrument['tradingsymbol'])
-          account_positions[instrument['tradingsymbol']] = {
+        ticker = instrument['tradingsymbol']
+
+        # Get the Stockflare ticker by isin
+        if instrument.has_key?('isin')
+          search_uri = URI.join(Zerodha.search_url, 'filter')
+          search_req = Net::HTTP::Put.new(search_uri, initheader = {
+                                     'Content-Type' => 'application/json'
+                                   })
+          search_req.body = {
+            conditions: {
+              isin: instrument['isin'].downcase,
+              country_code: 'ind'
+            },
+            select: ['sic', 'ticker']
+          }.to_json
+          search_resp = Zerodha.call_api(search_uri, search_req)
+          if search_resp.code == '200'
+            search_result = JSON.parse(search_resp.body)
+            if search_result.count > 0
+              ticker = search_result[0]['ticker']
+            end
+          end
+        end
+
+        if !account_positions.has_key?(ticker)
+          account_positions[ticker] = {
             'costBasis' => 0.0,
             'unrealizedPL' => 0.0,
             'unrealizedDayPL' => 0.0,
@@ -131,13 +155,14 @@ module Zerodha
             'priorClose' => 0.0
           }
         end
-        position = account_positions[instrument['tradingsymbol']]
+        position = account_positions[ticker]
         position['costBasis'] = position['costBasis'] + (instrument['average_price'].to_f * instrument['quantity'].to_f)
         position['unrealizedPL'] = position['unrealizedPL'] + instrument['pnl'].to_f
         position['mktPrice'] = instrument['last_price'].to_f
         position['openQty'] = position['openQty'] + instrument['quantity'].to_f
         position['priorClose'] = instrument['close_price'].to_f
         position['unrealizedDayPL'] = (position['openQty'] * position['priorClose']) - (position['openQty'] * position['mktPrice'])
+
         account_positions
       end
     end

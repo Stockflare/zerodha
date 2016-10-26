@@ -19,6 +19,7 @@ Zerodha.configure do |config|
   config.language = ENV['ZERODHA_LANGUAGE']
   config.api_key = ENV['ZERODHA_API_KEY']
   config.api_secret = ENV['ZERODHA_API_SECRET']
+  config.search_url = ENV['SEARCH_URL']
   config.cache = Dalli::Client.new(ENV['MEMCACHED_CONNECTION'])
 end
 

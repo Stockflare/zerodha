@@ -55,6 +55,18 @@ describe Zerodha do
     end
   end
 
+  describe '#search_url' do
+    it 'returns ENV - SEARCH_URL' do
+      expect(Zerodha.search_url).to eql ENV['SEARCH_URL']
+    end
+    it 'raises error when not configured' do
+      Zerodha.configure do |config|
+        config.search_url = nil
+      end
+      expect { Zerodha.search_url }.to raise_error(Trading::Errors::ConfigException)
+    end
+  end
+
   # describe '#cache' do
   #   it 'returns An instance of Memcached' do
   #     expect(Zerodha.cache).to eql an_instance_of(Memcached)

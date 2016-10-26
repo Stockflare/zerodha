@@ -38,7 +38,24 @@ describe Zerodha::User::Account do
         "product" => "CNC",
         "collateral_quantity" => 0,
         "collateral_type" => nil
-      }]
+      },
+      {
+        "tradingsymbol" => "BENGALASM",
+        "exchange" => "NSE",
+        "isin" => "INE083K01017",
+        "quantity" => 1,
+        "realised_quantity" => 1,
+        "t1_quantity" => 0,
+
+        "average_price" => 475.0,
+        "last_price" => 432.55,
+        "pnl" => -42.50,
+
+        "product" => "CNC",
+        "collateral_quantity" => 0,
+        "collateral_type" => nil
+      }
+    ]
     }
   end
   let(:positions_result) do

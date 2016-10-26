@@ -17,7 +17,7 @@ module Zerodha
 
   class << self
 
-    attr_writer :logger, :api_uri, :api_key, :api_secret, :language, :cache
+    attr_writer :logger, :api_uri, :api_key, :api_secret, :language, :cache, :search_url
 
     # Helper to configure .
     #
@@ -178,6 +178,19 @@ module Zerodha
           code: 500,
           description: 'cache missing',
           messages: ['cache configuration variable has not been set']
+        )
+      end
+    end
+
+    def search_url
+      if @search_url
+        return @search_url
+      else
+        raise Trading::Errors::ConfigException.new(
+          type: :error,
+          code: 500,
+          description: 'search_url missing',
+          messages: ['search_url configuration variable has not been set']
         )
       end
     end
