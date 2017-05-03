@@ -57,6 +57,7 @@ module Zerodha
               day_return_percent: 0.0,
               total_return: 0.0,
               total_return_percent: 0.0,
+              base_currency_code: 'inr',
               value: 0.0,
               token: token
             }
